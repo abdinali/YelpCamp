@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
+const {campgroundSchema} = require('./schemas');
 const handleAsyncErr = require('./utils/handleAsyncErr');
 const ExpressError = require('./utils/ExpressError');
 const methodOverride = require('method-override');
@@ -9,6 +10,16 @@ const Campground = require('./models/campground');
 
 const app = express();
 const port = 3000;
+
+const validateCampground = (req, res, next) => {
+    const {error} = campgroundSchema.validate(req.body);
+    if(error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400);
+    } else {
+        next();
+    }
+}
 
 mongoose.connect('mongodb://127.0.0.1:27017/yelpcamp')
   .then(() => console.log ('DATABASE CONNECTED!'))
@@ -34,9 +45,7 @@ app.get('/campgrounds/new', (req, res) => {
     res.render('campgrounds/new')
 })
 
-app.post('/campgrounds', handleAsyncErr(async (req, res) => {
-    if(!req.body.campground) throw new ExpressError('Invalid Campground Data', 400);
-    // if(!(req.body.campground.price === Number)) throw new ExpressError('Casting Error', 200);
+app.post('/campgrounds', validateCampground, handleAsyncErr(async (req, res) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -52,7 +61,7 @@ app.get('/campgrounds/:id/edit', handleAsyncErr(async (req, res) => {
     res.render('campgrounds/edit', {campground})
 }))
 
-app.put('/campgrounds/:id', handleAsyncErr(async (req, res) => {
+app.put('/campgrounds/:id', validateCampground, handleAsyncErr(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndUpdate(id, {...req.body.campground});
     console.log(req.body.campground);
