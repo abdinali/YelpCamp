@@ -6,7 +6,9 @@ const {campgroundSchema} = require('./schemas');
 const handleAsyncErr = require('./utils/handleAsyncErr');
 const ExpressError = require('./utils/ExpressError');
 const methodOverride = require('method-override');
+
 const Campground = require('./models/campground');
+const Review = require('./models/review')
 
 const app = express();
 const port = 3000;
@@ -32,9 +34,12 @@ app.engine('ejs', ejsMate);
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 
+// Home Page
 app.get('/', (req, res) => {
     res.render('home');
 })
+
+// Campgrounds
 
 app.get('/campgrounds', handleAsyncErr(async (req, res) => {
     const campgrounds = await Campground.find({});
@@ -72,6 +77,16 @@ app.delete('/campgrounds/:id', handleAsyncErr(async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+}))
+
+// Reviews
+app.post('/campgrounds/:id/reviews', handleAsyncErr(async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await campground.save();
+    await review.save();
+    res.redirect(`/campgrounds/${campground._id}`);
 }))
 
 app.all('*', (req, res, next) => {
