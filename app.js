@@ -18,10 +18,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/yelpcamp')
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
 app.engine('ejs', ejsMate);
+
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Home Page
 app.get('/', (req, res) => {
@@ -31,7 +32,7 @@ app.get('/', (req, res) => {
 // Campground Routes
 app.use('/campgrounds', campgrounds);
 
-// Reviews
+// Reviews Routes
 app.use('/campgrounds/:id/reviews', reviews);
 
 app.all('*', (req, res, next) => {
