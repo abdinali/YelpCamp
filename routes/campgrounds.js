@@ -32,11 +32,19 @@ router.post('/', validateSchema(campgroundSchema), handleAsyncErr(async (req, re
 
 router.get('/:id', handleAsyncErr(async (req, res) => {
     const campground = await Campground.findById(req.params.id).populate('reviews');
+    if(!campground) {
+        req.flash('error', 'Campground cannot be found with this URL.');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/show', {campground});
 }))
 
 router.get('/:id/edit', handleAsyncErr(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
+    if(!campground) {
+        req.flash('error', 'Campground cannot be found with this URL.');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/edit', {campground});
 }))
 
