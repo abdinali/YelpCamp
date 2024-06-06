@@ -5,7 +5,7 @@ const router = express.Router({mergeParams: true});
 const handleAsyncErr = require('../utils/handleAsyncErr');
 
 // JOI validator
-const validateSchema = require('../validation/validate');
+const validateSchema = require('../utils/validate');
 
 // JOI review schema
 const { reviewSchema } = require('../schemas');

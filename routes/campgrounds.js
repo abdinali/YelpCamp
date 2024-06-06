@@ -5,7 +5,7 @@ const router = express.Router();
 const handleAsyncErr = require('../utils/handleAsyncErr');
 
 // JOI validator
-const validateSchema = require('../validation/validate');
+const validateSchema = require('../utils/validate');
 
 // JOI campground schema
 const { campgroundSchema } = require('../schemas');
