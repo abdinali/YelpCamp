@@ -8,6 +8,9 @@ const handleAsyncErr = require('../utils/handleAsyncErr');
 // mongoose model
 const User = require('../models/user');
 
+// middleware 
+const { storeReturnTo } = require('../middleware');
+
 router.get('/register', (req, res) => {
     res.render('users/register');
 })
@@ -32,9 +35,10 @@ router.get('/login', (req, res) => {
     res.render('users/login');
 })
 
-router.post('/login', passport.authenticate('local', {failureFlash: true, failureRedirect: '/login'}), (req, res) => {
+router.post('/login', storeReturnTo, passport.authenticate('local', {failureFlash: true, failureRedirect: '/login'}), (req, res) => {
     req.flash('success', `Welcome back, ${req.body.username}!`);
-    res.redirect('/campgrounds')
+    const redirect_url = res.locals.returnTo || '/campgrounds';
+    res.redirect(redirect_url);
 })
 
 router.get('/logout', (req, res, next) => {
