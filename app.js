@@ -6,10 +6,14 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const ExpressError = require('./utils/ExpressError');
 const methodOverride = require('method-override');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
 
 // routes
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+const user_routes = require('./routes/users');
+const campground_routes = require('./routes/campgrounds');
+const review_routes = require('./routes/reviews');
 
 const app = express();
 const port = 3000;
@@ -39,6 +43,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session(sessionConfig));
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
@@ -50,11 +61,14 @@ app.get('/', (req, res) => {
     res.render('home');
 })
 
+// User Routes 
+app.use('/', user_routes);
+
 // Campground Routes
-app.use('/campgrounds', campgrounds);
+app.use('/campgrounds', campground_routes);
 
 // Reviews Routes
-app.use('/campgrounds/:id/reviews', reviews);
+app.use('/campgrounds/:id/reviews', review_routes);
 
 // Error Middleware
 app.all('*', (req, res, next) => {
