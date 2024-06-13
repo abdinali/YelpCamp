@@ -1,5 +1,7 @@
 const ExpressError = require('./utils/ExpressError');
 const Campground = require('./models/campground');
+const Review = require('./models/review');
+const { model } = require('mongoose');
 
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -17,17 +19,20 @@ module.exports.storeReturnTo = (req, res, next) => {
     next();
 }
 
-module.exports.isAuthor = async (req, res, next) => {
-    const { id } = req.params;
-    const campground = await Campground.findById(req.params.id);
-    if (!campground.author.equals(req.user._id)) {
-        req.flash('error', 'You do not have permission to modify this campground');
-        return res.redirect(`/campgrounds/${id}`);
+module.exports.isAuthor = (model) => {
+    return async (req, res, next) => {
+        const id = model === Campground ? req.params.id : req.params.reviewId;
+        doc = await model.findById(id);
+        if (!doc.author.equals(req.user._id)) {
+            const type = model === Campground ? 'campground' : 'review';
+            req.flash('error', `You do not have permission to modify this ${type}.`);
+            return res.redirect(`/campgrounds/${id}`);
+        }
+        next();    
     }
-    next();
 }
 
-module.exports.validateSchema = (schema) => {
+module.exports.isValidSchema = (schema) => {
     return (req, res, next) => {
         const {error} = schema.validate(req.body);
         if(error) {
