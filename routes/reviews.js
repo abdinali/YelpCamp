@@ -4,15 +4,15 @@ const router = express.Router({mergeParams: true});
 // async error handler
 const handleAsyncErr = require('../utils/handleAsyncErr');
 
-// JOI validator
-const validateSchema = require('../utils/validate');
-
 // JOI review schema
 const { reviewSchema } = require('../schemas');
 
 // mongoose models
 const Campground = require('../models/campground');
 const Review = require('../models/review');
+
+// middleware 
+const { validateSchema } = require('../middleware');
 
 // Reviews Routes
 router.post('/', validateSchema(reviewSchema), handleAsyncErr(async (req, res) => {
