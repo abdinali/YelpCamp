@@ -20,13 +20,13 @@ const User = require('../models/user');
 // middleware 
 const { storeReturnTo } = require('../middleware');
 
-router.get('/register', getRegisterForm);
+router.route('/register')
+    .get(getRegisterForm)
+    .post(handleAsyncErr(registerUser));
 
-router.post('/register', handleAsyncErr(registerUser));
-
-router.get('/login', getLoginForm);
-
-router.post('/login', storeReturnTo, passport.authenticate('local', {failureFlash: true, failureRedirect: '/login'}), loginUser);
+router.route('/login')
+    .get(getLoginForm)
+    .post(storeReturnTo, passport.authenticate('local', {failureFlash: true, failureRedirect: '/login'}), loginUser);
 
 router.get('/logout', logoutUser);
 

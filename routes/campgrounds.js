@@ -25,18 +25,18 @@ const Campground = require('../models/campground');
 const { isLoggedIn, isAuthor, isValidSchema} = require('../middleware');
 
 // Campground Routes
-router.get('/', handleAsyncErr(index));
+
+router.route('/')
+	.get(handleAsyncErr(index))
+	.post(isLoggedIn, isValidSchema(campgroundSchema), handleAsyncErr(createCampground));
 
 router.get('/new', isLoggedIn, getNewForm);
 
-router.post('/', isLoggedIn, isValidSchema(campgroundSchema), handleAsyncErr(createCampground));
-
-router.get('/:id', handleAsyncErr(showCampground));
+router.route('/:id')
+	.get(handleAsyncErr(showCampground))
+	.put(isLoggedIn, isAuthor(Campground), isValidSchema(campgroundSchema), handleAsyncErr(editCampground))
+	.delete(isLoggedIn, isAuthor(Campground), handleAsyncErr(deleteCampground));
 
 router.get('/:id/edit', isLoggedIn, isAuthor(Campground), handleAsyncErr(getEditForm));
-
-router.put('/:id', isLoggedIn, isAuthor(Campground), isValidSchema(campgroundSchema), handleAsyncErr(editCampground));
-
-router.delete('/:id', isLoggedIn, isAuthor(Campground), handleAsyncErr(deleteCampground));
 
 module.exports = router;
