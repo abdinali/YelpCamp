@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router({mergeParams: true});
 
+// controllers
+const {
+    createReview,
+    deleteReview
+} = require('../controllers/reviews');
+
 // async error handler
 const handleAsyncErr = require('../utils/handleAsyncErr');
 
@@ -15,22 +21,8 @@ const Review = require('../models/review');
 const { isLoggedIn, isAuthor, isValidSchema } = require('../middleware');
 
 // Reviews Routes
-router.post('/', isLoggedIn, isValidSchema(reviewSchema), handleAsyncErr(async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
-    const review = new Review({...req.body.review, author: req.user._id});
-    campground.reviews.push(review);
-    await campground.save();
-    await review.save();
-    req.flash('success', 'Created new review!');
-    res.redirect(`/campgrounds/${campground._id}`);
-}))
+router.post('/', isLoggedIn, isValidSchema(reviewSchema), handleAsyncErr(createReview));
 
-router.delete('/:reviewId', isLoggedIn, isAuthor(Review), handleAsyncErr(async(req, res) => {
-    const { id, reviewId } = req.params;
-    await Review.findByIdAndDelete(reviewId);
-    const campground = await Campground.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
-    req.flash('success', 'Successfully deleted review!')
-    res.redirect(`/campgrounds/${campground._id}`);
-}))
+router.delete('/:reviewId', isLoggedIn, isAuthor(Review), handleAsyncErr(deleteReview));
 
 module.exports = router;
