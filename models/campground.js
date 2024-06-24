@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 const Review = require('./review');
 
+const imageSchema = new mongoose.Schema({
+    url: String,
+    filename: String
+})
+
 const campgroundSchema = new mongoose.Schema({
     title: {
         type: String
     },
     images: {
-        type: [
-            {
-                url: String,
-                filename: String
-            }
-        ]
+        type: [imageSchema]
     },
     price: {
         type: Number
@@ -32,6 +32,10 @@ const campgroundSchema = new mongoose.Schema({
             ref: 'Review'
         }
     ]
+})
+
+imageSchema.virtual('thumbnail').get(function() {
+    return this.url.replace('/upload', '/upload/w_200');
 })
 
 campgroundSchema.post('findOneAndDelete', async (deletedCampground) => {
