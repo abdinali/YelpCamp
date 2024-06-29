@@ -8,4 +8,10 @@ const map = new mapboxgl.Map({
 
 new mapboxgl.Marker()
     .setLngLat(JSON.parse(campground).geometry.coordinates)
+    .setPopup(
+        new mapboxgl.Popup({offset: 25})
+            .setHTML(
+                `<h3>${JSON.parse(campground).title}</h3><p>${JSON.parse(campground).location}</p>`
+            )
+    )
     .addTo(map);
