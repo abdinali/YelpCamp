@@ -42,10 +42,20 @@ const campgroundSchema = new mongoose.Schema({
             ref: 'Review'
         }
     ]
+}, {    
+    toJSON: { virtuals: true }
 })
 
 imageSchema.virtual('thumbnail').get(function() {
     return this.url.replace('/upload', '/upload/w_200');
+})
+
+campgroundSchema.virtual('properties').get(function() {
+    return {
+        id: this.id,
+        title: this.title,
+        description: this.description
+    };
 })
 
 campgroundSchema.post('findOneAndDelete', async (deletedCampground) => {
